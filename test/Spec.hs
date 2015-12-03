@@ -1,3 +1,6 @@
+module Main where
+
+import Test.Hspec
 import Test.QuickCheck
 
 import Avl
@@ -26,25 +29,29 @@ checkDepth node@(Node _ d suba subb) = d == recursiveDepth node && checkDepth su
 isLogarithmic :: AvlTree t -> Bool
 isLogarithmic t = depth t <= floor (logBase 2 (fromIntegral (size t + 1)))
 
+canRotateLeft t = depthRight t > 0
+canRotateRight t = depthLeft t > 0
+
 main :: IO ()
-main = do
-  -- check that insertion is ok and that it does not duplicate
-  quickCheck ((\l -> size (fromList l) == length (nub l)) :: [Int] -> Bool)
+main = hspec $ do
+  describe "tests" $ do
+    it "check that insertion is ok and that it does not duplicate" $ do
+      property ((\l -> size (fromList l)  == length (nub l)) :: [Int] -> Bool)
+  
+    it "check idempotence of toList -> fromList" $ do
+      property ((\l -> let t = fromList l in sort (nub l) == toList t) :: [Int] -> Bool)
 
-  -- check idempotence of toList -> fromList
-  quickCheck ((\l -> let t = fromList l in sort (nub l) == toList t) :: [Int] -> Bool)
+    it "check that search works" $ do
+      property ((\l0 -> let t = fromList l0 in all (search t) l0) :: [Int] -> Bool)
 
-  -- check that search works
-  quickCheck ((\l0 -> let t = fromList l0 in all (search t) l0) :: [Int] -> Bool)
+    it "heck that search does not find items that are not here"  $ do
+      property ((\l0 l1 -> let t = fromList l0 in all (\x -> (search t x) == (x `elem` l0)) l1) :: [Int] -> [Int] -> Bool)
 
-  -- check that search does not find items that are not here
-  quickCheck ((\l0 l1 -> let t = fromList l0 in all (\x -> (search t x) == (x `elem` l0)) l1) :: [Int] -> [Int] -> Bool)
+    it "check that cached depth works as it should" $ do
+      property ((\l -> let t = fromList l in checkDepth t) :: [Int] -> Bool)
 
-  -- check that cached depth works as it should
-  quickCheck ((\l -> let t = fromList l in checkDepth t) :: [Int] -> Bool)
+    it "check ordering property" $ do
+      property ((\l -> let t = fromList l in checkOrdering t) :: [Int] -> Bool)
 
-  -- check ordering property
-  quickCheck ((\l -> let t = fromList l in checkOrdering t) :: [Int] -> Bool)
-
-  -- check that depth is logarithm of the number of items
-  quickCheck ((\l -> let t = fromList l in isLogarithmic t) :: [Int] -> Bool)
+    it "check that depth is logarithm of the number of items" $ do
+      property ((\l -> let t = fromList l in isLogarithmic t) :: [Int] -> Bool)
