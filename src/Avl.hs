@@ -48,15 +48,14 @@ size = foldAvl (\x _ -> x + 1) 0
 
 -- | Pretty printing version of the tree
 pprint :: Show t => AvlTree t -> String
-pprint = unlines . pprint'
+pprint t = unlines (pprint' t)
   where
+    maxShow = 3 + foldAvl (\x y -> max x (length (show y))) 0 t
     pprint' :: Show t => AvlTree t -> [String]
     pprint' Leaf = ["."]
-    pprint' (Node v _ suba subb) = subbp ++ [sv] ++ subap
+    pprint' (Node v _ suba subb) = subbp ++ [show v] ++ subap
       where
-        sv = show v
-        l = length sv + 3
-        paddingStr = replicate l ' '
+        paddingStr = replicate maxShow ' '
         subap = map (paddingStr ++) (pprint' suba)
         subbp = map (paddingStr ++) (pprint' subb)
 
