@@ -8,40 +8,6 @@ import Avl.Internal
 
 import Data.List (nub, sort)
 
-depthLeft :: AvlTree t -> Int
-depthLeft Leaf = -1
-depthLeft (Node _ _ l _) = depth l
-
-depthRight :: AvlTree t -> Int
-depthRight Leaf = -1
-depthRight (Node _ _ _ r) = depth r
-
-recursiveDepth :: AvlTree t -> Int
-recursiveDepth Leaf = -1
-recursiveDepth (Node _ _ suba subb) = 1 + max (recursiveDepth suba) (recursiveDepth subb)
-
-checkOrdering :: Ord t => AvlTree t -> Bool
-checkOrdering t = checkOrdering' t (const True)
-  where checkOrdering' Leaf _ = True
-        checkOrdering' (Node v _ suba subb) f = f v && checkOrdering' suba (<v) && checkOrdering' subb (>=v)
-
-checkDepth :: AvlTree t -> Bool
-checkDepth Leaf = True
-checkDepth node@(Node _ d suba subb) = d == recursiveDepth node && checkDepth suba && checkDepth subb
-
-isLogarithmic :: AvlTree t -> Bool
-isLogarithmic t = depth t <= floor (logBase 2 (fromIntegral (size t + 1)))
-
-canRotateLeft :: AvlTree t -> Bool
-canRotateLeft t = depthRight t > 0
-
-canRotateRight :: AvlTree t -> Bool
-canRotateRight t = depthLeft t > 0
-
-matchTheAvlRule :: AvlTree t -> Bool
-matchTheAvlRule Leaf = True
-matchTheAvlRule (Node _ _ suba subb) = abs ((recursiveDepth suba) - (recursiveDepth subb)) <= 1 && matchTheAvlRule suba && matchTheAvlRule subb
-
 newtype IntList = IntList [Int] deriving (Show)
 newtype IntAvlTree = IntAvlTree (AvlTree Int) deriving (Show)
 
@@ -136,3 +102,43 @@ main = hspec $ do
         property $ \(IntAvlTree t) -> canRotateRight t ==> depthRight (unsafeRotateRight t) > depthRight t
       it "decrease leftDepth" $ do
         property $ \(IntAvlTree t) -> canRotateRight t ==> depthLeft (unsafeRotateRight t) < depthLeft t
+
+-- This are the internal testing functions
+
+-- Utils
+
+depthLeft :: AvlTree t -> Int
+depthLeft Leaf = -1
+depthLeft (Node _ _ l _) = depth l
+
+depthRight :: AvlTree t -> Int
+depthRight Leaf = -1
+depthRight (Node _ _ _ r) = depth r
+
+recursiveDepth :: AvlTree t -> Int
+recursiveDepth Leaf = -1
+recursiveDepth (Node _ _ suba subb) = 1 + max (recursiveDepth suba) (recursiveDepth subb)
+
+canRotateLeft :: AvlTree t -> Bool
+canRotateLeft t = depthRight t > 0
+
+canRotateRight :: AvlTree t -> Bool
+canRotateRight t = depthLeft t > 0
+
+-- Predicates
+checkOrdering :: Ord t => AvlTree t -> Bool
+checkOrdering t = checkOrdering' t (const True)
+  where checkOrdering' Leaf _ = True
+        checkOrdering' (Node v _ suba subb) f = f v && checkOrdering' suba (<v) && checkOrdering' subb (>=v)
+
+checkDepth :: AvlTree t -> Bool
+checkDepth Leaf = True
+checkDepth node@(Node _ d suba subb) = d == recursiveDepth node && checkDepth suba && checkDepth subb
+
+isLogarithmic :: AvlTree t -> Bool
+isLogarithmic t = depth t <= floor (logBase 2 (fromIntegral (size t + 1)))
+
+matchTheAvlRule :: AvlTree t -> Bool
+matchTheAvlRule Leaf = True
+matchTheAvlRule (Node _ _ suba subb) = abs ((recursiveDepth suba) - (recursiveDepth subb)) <= 1 && matchTheAvlRule suba && matchTheAvlRule subb
+
