@@ -115,3 +115,6 @@ main = hspec $ do
     it "keep log behavior" $ do
       property $ \(IntAvlTree t) (IntList l) -> matchTheAvlRule (insertMany t l)
 
+  describe "prettyPrint" $ do
+    it "contains the numbers" $ do
+      property $ \(IntAvlTree t) -> let l = map read (words (filter (/='.') (pprint t))) in sort l == toList t
