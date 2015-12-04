@@ -5,6 +5,8 @@ Values should be in the Ord class
 
 module Avl
        (AvlTree
+       ,insert
+       ,insertMany
        ,singleton
        ,empty
        ,search
@@ -19,7 +21,22 @@ import Data.List (sort, nub)
 
 import Avl.Internal
 
--- | Search a value in the tree
+-- | Insert m values in the tree (O log n m)
+insertMany :: Ord t => AvlTree t -> [t] -> AvlTree t
+insertMany t [] = t
+insertMany t (x:xs) = insertMany (insert t x) xs
+
+-- | Insert a value in the tree. O(log n)
+insert :: Ord t => AvlTree t -> t -> AvlTree t
+insert (Leaf) v = singleton v
+insert node@(Node t _ suba subb) v
+  | v < t = let sub = insert suba v
+            in balance t sub subb
+  | v > t = let sub = insert subb v
+            in balance t suba sub
+  | otherwise = node
+
+-- | Search a value in the tree O(log n)
 search :: Ord t => AvlTree t -> t -> Bool
 search Leaf _ = False
 search (Node v' _  suba subb) v
