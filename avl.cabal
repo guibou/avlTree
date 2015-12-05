@@ -24,6 +24,8 @@ test-suite avl-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
+  other-modules:     AvlSpec
+                     , AvlInternalSpec
   build-depends:       base
                      , avl
                      , hspec
