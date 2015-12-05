@@ -3,18 +3,11 @@ module AvlSpec where
 import Test.Hspec
 import Test.QuickCheck
 
+import TestUtils
+
 import Avl
 
 import Data.List (nub, sort)
-
-newtype IntList = IntList [Int] deriving (Show)
-newtype IntAvlTree = IntAvlTree (AvlTree Int) deriving (Show)
-
-instance Arbitrary IntAvlTree where
-  arbitrary = IntAvlTree . fromList <$> arbitrary
-
-instance Arbitrary IntList where
-  arbitrary = IntList <$> arbitrary
 
 spec :: Spec
 spec = do

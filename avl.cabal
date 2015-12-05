@@ -26,6 +26,7 @@ test-suite avl-test
   main-is:             Spec.hs
   other-modules:     AvlSpec
                      , AvlInternalSpec
+                     , TestUtils
   build-depends:       base
                      , avl
                      , hspec
